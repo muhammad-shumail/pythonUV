@@ -1,9 +1,11 @@
 import os
 import uuid
 from typing import List, Union
+
 from fastapi import FastAPI, File, Form, HTTPException, UploadFile
 from fastapi.responses import FileResponse
 from pydantic import BaseModel
+import requests
 
 app = FastAPI()
 
@@ -13,10 +15,12 @@ class Item(BaseModel):
     is_offer: Union[bool, None] = None
 
 
+url = "https://jsonplaceholder.typicode.com/users/"
+response = requests.get(url)
 
 @app.get("/")
-def read_root():
-    return {"Hello": "World"}
+async def root():
+    return response.json()
 
 
 @app.get("/items/{item_id}")
@@ -87,3 +91,6 @@ async def read_file(file_uuid: str):
     if not os.path.exists(file_path):
         raise HTTPException(status_code=404, detail="File not found")
     return FileResponse(file_path, media_type="application/octet-stream", filename=file_path)
+
+
+
